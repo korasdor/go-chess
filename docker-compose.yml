@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  consul:
+    image: consul
+    command: agent -server -client 0.0.0.0 -bootstrap-expect=1 -ui
+    ports:
+      - "8500:8500"
+    volumes:
+      - consul-data:/consul/data
+  app:
+    image: go-chess
+    container_name: go-chess
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8001:8001
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_ADDR=consul:8500
+    volumes:
+      - ./.bin/:/root/
+      - ./configs/:/root/configs/
+      - ./templates/:/root/templates/
+volumes:
+  consul-data:
